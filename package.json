@@ -1,0 +1,12 @@
+{
+  "name": "amazon-urun-cekme",
+  "version": "1.0.0",
+  "description": "Amazon ve diğer sitelerden ürün fiyatlarını çekme",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^25.0.0"
+  }
+}

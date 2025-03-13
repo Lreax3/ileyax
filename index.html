@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Ürün Çekme</title>
+    <style>
+        .selected {
+            background-color: #d3d3d3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Amazon En Popüler Ürünler</h1>
+    <button id="scrape-button">Ürünleri Çek</button>
+    <ul id="product-list"></ul>
+    <button id="find-best-price-button" disabled>En Uygun Fiyatı Bul</button>
+    <p id="result"></p>
+
+    <script>
+
+        const button = document.getElementById('scrape-button');
+        const productList = document.getElementById('product-list');
+        const findBestPriceButton = document.getElementById('find-best-price-button');
+        const resultDisplay = document.getElementById('result');
+
+        findBestPriceButton.addEventListener('click', async () => {
+            resultDisplay.textContent = 'Aranıyor...';
+            try {
+                const prices = await Promise.all(selectedProducts.map(product => window.electron.searchBestPrice(product)));
+                const validPrices = prices.filter(price => typeof price === 'number');
+                const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : "Fiyat bulunamadı.";
+                resultDisplay.textContent = `En uygun fiyat: ${minPrice}`;
+            } catch (error) {
+                resultDisplay.textContent = "Bir hata oluştu: " + error.message;
+            }
+        });
+
+        let selectedProducts = [];
+
+        button.addEventListener('click', async () => {
+            productList.innerHTML = ''; // Önceki listeyi temizle
+            const products = await window.electron.scrapeAmazon();
+            products.forEach((product, index) => {
+                const li = document.createElement('li');
+                li.textContent = product;
+                li.dataset.index = index;
+
+                // Tıklama olayını ekle
+                li.addEventListener('click', () => {
+                    li.classList.toggle('selected');
+                    if (li.classList.contains('selected')) {
+                        selectedProducts.push(product);
+                    } else {
+                        selectedProducts = selectedProducts.filter(p => p !== product);
+                    }
+                    // Seçilen ürün var mı kontrol et
+                    findBestPriceButton.disabled = selectedProducts.length === 0;
+                });
+
+                productList.appendChild(li);
+            });
+        });
+
+    </script>
+</body>
+
+</html>
